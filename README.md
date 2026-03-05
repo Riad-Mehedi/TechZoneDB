@@ -1,4 +1,4 @@
-# TechZoneDB — SQL 
+# TechZoneDB
 
 A SQL Server database for a tech products store, built as part of a structured SQL assignment.
 
@@ -21,7 +21,7 @@ A SQL Server database for a tech products store, built as part of a structured S
 ## How to Run
 
 1. Open **SQL Server Management Studio (SSMS)**
-2. Open `TechZoneDB_Assignment.sql`
+2. Open `Assignment3.txt`
 3. Select all → Press **F5**
 
 ## Requirements

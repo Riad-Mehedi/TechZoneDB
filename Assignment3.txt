@@ -1,0 +1,169 @@
+
+                                      SQL Assignment — TechZoneDB
+
+-----------------------------------------------------------------------------------------------------------------------------------
+                                      Part 1 — Schema Design & Creation 
+-----------------------------------------------------------------------------------------------------------------------------------
+CREATE DATABASE TechZoneDB;
+
+USE TechZoneDB;
+
+CREATE TABLE Products(
+	ProductID INT IDENTITY(1,1) PRIMARY KEY,
+	ProductName VARCHAR(100) NOT NULL,
+	Category VARCHAR(100) NOT NULL,
+	Price DECIMAL(18,2) NOT NULL,
+	StockQuantity INT NOT NULL
+);
+
+CREATE TABLE Customers(
+	CustomerID INT IDENTITY(1,1) PRIMARY KEY,
+	FirstName VARCHAR(100) NOT NULL,
+	LastName VARCHAR(100) NOT NULL,
+	Email VARCHAR(150) UNIQUE NOT NULL,
+	RegistrationDate DATE NOT NULL
+);
+
+CREATE TABLE Orders(
+	OrderID INT IDENTITY(1,1) PRIMARY KEY,
+	CustomerID INT NOT NULL,
+	ProductID INT NOT NULL,
+	OrderDate DATETIME NOT NULL DEFAULT GETDATE(),
+	Quantity INT NOT NULL,
+
+	CONSTRAINT FK_Orders_Customer FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID),
+	CONSTRAINT FK_Orders_Product FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+                                    Part 2 — Data Population 
+-----------------------------------------------------------------------------------------------------------------------------------
+Insert Customers:
+
+INSERT INTO Customers (FirstName, LastName, Email, RegistrationDate) 
+VALUES 
+ ('John', 'Doe', 'john@mail.com', '2026-01-10'),
+ ('Jane', 'Smith', 'jane@mail.com', '2026-02-15'),
+ ('Alice', 'Brown', 'alice@mail.com', '2026-03-20'),
+ ('Bob', 'White', 'bob@mail.com', '2026-04-05')
+
+
+Insert Products:
+
+INSERT INTO Products (ProductName, Category, Price, StockQuantity)
+VALUES
+('MacBook Pro', 'Laptop', 1200.00, 10),
+('iPhone 17', 'Phone', 999.00, 20),
+('Dell XPS', 'Laptop', 1100.00, 8),
+('Samsung S25', 'Phone', 850.00, 15),
+('Sony Headphones', 'Audio', 200.00, 50)
+
+
+Insert Orders:
+
+INSERT INTO Orders (CustomerID, ProductID, Quantity)
+VALUES
+(1, 1, 1),
+(2, 2, 2),
+(3, 5, 1),
+(4, 3, 1),
+(1, 4, 1)
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+                                      Part 3 — Data Manipulation & Maintenance 
+-----------------------------------------------------------------------------------------------------------------------------------
+1. Price Hike - iPhone 17  +$50:
+
+  SELECT * FROM Products WHERE ProductID = 2;
+
+  UPDATE Products
+  SET Price = Price + 50
+  WHERE ProductID = 2;
+
+  SELECT * FROM Products WHERE ProductID = 2;
+
+
+2. Inventory Adjustment - Sony Headphones -5 units:
+
+  SELECT * FROM Products WHERE ProductID = 5;
+
+  UPDATE Products
+  SET StockQuantity = StockQuantity - 5
+  WHERE ProductID = 5;
+
+  SELECT * FROM Products WHERE ProductID = 5;
+
+
+3. Order Cancellation: 
+
+  SELECT * FROM Orders WHERE CustomerID = 3;
+
+  DELETE FROM Orders
+  WHERE CustomerID = 3 AND ProductID = 5;
+
+  SELECT * FROM Orders WHERE CustomerID = 3;
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+                                      Part 4 — Business Reporting & Analysis 
+-----------------------------------------------------------------------------------------------------------------------------------
+1. sales Report:
+
+SELECT
+    CONCAT(c.FirstName, ' ', c.LastName) AS FullName,
+    p.ProductName,
+    o.OrderDate
+FROM Orders o
+JOIN Customers c ON o.CustomerID = c.CustomerID
+JOIN Products p ON o.ProductID = p.ProductID;
+
+
+2. Revenue Calculation:
+
+SELECT
+   SUM(p.Price * o.Quantity) AS TotalRevenue
+FROM Orders o
+JOIN Products p ON o.ProductID = p.ProductID
+WHERE p.Category = 'Laptop';
+
+
+3. Top Spenders: 
+SELECT
+   CONCAT(c.FirstName, ' ', c.LastName) AS FullName,
+   SUM(o.Quantity) AS TotalQuantity
+FROM Orders o
+JOIN Customers c ON o.CustomerID = c.CustomerID
+GROUP BY c.FirstName, c.LastName
+ORDER BY TotalQuantity DESC;
+
+-----------------------------------------------------------------------------------------------------------------------------------
+                                     Part 5 — Advanced Engineering 
+-----------------------------------------------------------------------------------------------------------------------------------
+
+1. View - HighValueProducts:
+
+CREATE VIEW HighValueProducts AS
+SELECT *
+FROM Products
+WHERE Price > 1000;
+
+SELECT * FROM HighValueProducts;
+
+
+2. Stored Procedure - RegisterCustomer:
+
+CREATE PROCEDURE RegisterCustomer
+   @FirstName VARCHAR(100),
+   @LastName VARCHAR(100),
+   @Email VARCHAR(150)
+AS
+BEGIN
+   INSERT INTO Customers (FirstName, LastName, Email, RegistrationDate)
+   VALUES (@FirstName, @LastName, @Email, GETDATE())
+END;
+
+EXEC RegisterCustomer 'Abdul', 'Kalam', 'abkalam@mail.com';
+SELECT * FROM Customers;
+
